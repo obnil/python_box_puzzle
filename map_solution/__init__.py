@@ -16,7 +16,7 @@ api = Api(app)
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = shelve.open("maps.db")
+        db = g._database = shelve.open("solutions.db")
     return db
 
 
@@ -41,7 +41,7 @@ def index():
         return markdown.markdown(content)
 
 
-class MapList(Resource):
+class SolutionList(Resource):
     def get(self):
         shelf = get_db()
         keys = list(shelf.keys())
@@ -56,8 +56,7 @@ class MapList(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('mapId', required=True)
-        parser.add_argument('a0', required=True)
-        parser.add_argument('a1', required=True)
+        parser.add_argument('solution', required=True)
 
         # Parse the arguments into an object
         args = parser.parse_args()
@@ -65,18 +64,18 @@ class MapList(Resource):
         shelf = get_db()
         shelf[args['mapId']] = args
 
-        return {'message': 'Map uploaded', 'data': args}, 201
+        return {'message': 'Solution uploaded', 'data': args}, 201
 
 
-class Map(Resource):
+class Solution(Resource):
     def get(self, mapId):
         shelf = get_db()
         # If the map does not exist in the data store, return a 404 error.
         if not (mapId in shelf):
-            return {'message': 'Map not found', 'data': {}}, 404
+            return {'message': 'Solution not found', 'data': {}}, 404
 
-        return {'message': 'Map found', 'data': shelf[mapId]}, 200
+        return {'message': 'Solution found', 'data': shelf[mapId]}, 200
 
 
-api.add_resource(MapList, '/maps')
-api.add_resource(Map, '/map/<string:mapId>')
+api.add_resource(SolutionList, '/solutions')
+api.add_resource(Solution, '/solution/<string:mapId>')
